@@ -19,16 +19,6 @@ def index():
 	"""
 	if "data_list" not in session:
 		session["data_list"] = []
-	item = {
-				"id":'',
-				"avatar":'',
-				"fullName":'',
-				"bDay":'',
-				"sex":'male',
-				"department":'',
-				"nameCard":''
-			}
-	session["data_list"].append(item)
 	return render_template("index.html", data_list = session["data_list"])
 
 @app.route('/manage', methods=["GET","POST","PUT","DELETE"])
