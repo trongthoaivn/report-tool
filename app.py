@@ -1,13 +1,19 @@
-from turtle import title
-from flask import Flask,render_template,session, request
+from flask import Flask,render_template,session, request, url_for
 from flask_session import Session
 
 app = Flask(__name__,template_folder='templates')
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+@app.route('/home')
 @app.route('/', methods=["GET"])
 def index():
+	"""_summary_
+
+	Returns:
+		_type_: _description_
+	"""
 	if "data_list" not in session:
 		session["data_list"] = []
 	item = {
@@ -24,6 +30,12 @@ def index():
 
 @app.route('/manage', methods=["GET","POST","PUT","DELETE"])
 def manage_data():
+	"""_summary_
+
+	Returns:
+		_type_: _description_
+	"""
+	# GET
 	if request.method == 'GET':
 		params = request.args
 		title = "Register Employee"
@@ -51,6 +63,8 @@ def manage_data():
 				title = "Edit Employee"	
 			buttons = ["Save","Delete"] 
 		return render_template("manage.html", data_item = item , title = title, buttons = buttons)
+	
+	# POST
 	if request.method == 'POST':
 		form = request.form
 		img = request.form
@@ -58,13 +72,15 @@ def manage_data():
 			session["data_list"].append(form)
 			return {
 				"code" : "success",
-				"data" : 
+				"data" : url_for("home")
 			}
-		except Exception as e:
+		except Exception as ex:
 			return{
 				"code": "fail",
-				"message": e
+				"message": ex
 			}
+
+	# PUT
 	if request.method == 'PUT':
 		params = request.args
 		data = request.form
@@ -87,11 +103,13 @@ def manage_data():
 				"code": "fail",
 				"message": "not exist item!"
 			}
-		except Exception as e:
+		except Exception as ex:
 			return{
 				"code": "fail",
-				"message": e
+				"message": ex
 			}
+
+	# DELETE
 	if request.method == 'DELETE':
 		params = request.args
 		try:
@@ -106,11 +124,12 @@ def manage_data():
 					"code": "fail",
 					"message": "not exist item!"
 				}
-		except Exception as e:
+		except Exception as ex:
 			return{
 				"code": "fail",
-				"message": e
+				"message": ex
 			}
-# main driver function
+
+
 if __name__ == '__main__':
 	app.run(host="0.0.0.0",port=5000,debug=True)

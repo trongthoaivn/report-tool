@@ -121,5 +121,19 @@
                 }
             });
         }
+    
+    function registerEmployee(){
+        $.ajax({
+                type: "POST",
+                url: window.location.href,
+                data: JSON.stringify($("#form-data").serializeArray()),
+                contentType: "application/json",
+                success: function (response) {
+                    if(response.code === "success"){
+                        
+                    }
+                }
+            });
+    }
 </script>
 </html>
