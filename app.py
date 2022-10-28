@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 import json
 from flask import Flask,render_template,session, request, url_for
@@ -45,14 +46,16 @@ def manage_data():
 		if "id" in params:
 			data = session.get("data_list")
 			id = int(params["id"])
-			if data[id] in data: 
-				item["id"] = data[id]["id"]
-				item["avatar"] = data[id]["avatar"]
-				item["fullName"] = data[id]["fullName"]
-				item["bDay"] = data[id]["bDay"]
-				item["sex"] = data[id]["sex"]
-				item["department"] = data[id]["department"]
-				item["nameCard"] = data[id]["nameCard"]
+			filter_data = list(filter(lambda i: i["id"] == id, data )) 
+			if len(list(filter_data)) > 0: 
+				employee_data = filter_data[0]
+				item["id"] = employee_data["id"]
+				item["avatar"] = employee_data["avatar"]
+				item["fullName"] = employee_data["fullName"]
+				item["bDay"] = employee_data["bDay"]
+				item["sex"] = employee_data["sex"]
+				item["department"] = employee_data["department"]
+				item["nameCard"] = employee_data.get("nameCard")
 				title = "Edit Employee"	
 			buttons = ["Save","Delete"] 
 		return render_template("manage.html", data_item = item , title = title, buttons = buttons)
