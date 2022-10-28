@@ -58,6 +58,7 @@ def manage_data():
 			session["data_list"].append(form)
 			return {
 				"code" : "success",
+				"data" : 
 			}
 		except Exception as e:
 			return{
@@ -112,4 +113,4 @@ def manage_data():
 			}
 # main driver function
 if __name__ == '__main__':
-	app.run(host="0.0.0.0",port=80,debug=True)
+	app.run(host="0.0.0.0",port=5000,debug=True)

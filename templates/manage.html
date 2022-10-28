@@ -73,19 +73,18 @@
     </div>
 </body>
 <script>
-    //
+    //bind data
     var buttons = {{buttons|tojson}};
     var dataItem = {{data_item|tojson}};
-    //
-    window.onload = function(e){
-       
-        var chkSex = document.getElementsByName("sex")
-        //
+
+    $(document).ready(function () {
+        // bind sex radio button
+        var chkSex = $("#sex")
         if (dataItem.sex !== ""){
             let checkedElement = Array.from(chkSex).find(({value}) => value === dataItem.sex)
             checkedElement.checked = true
         }
-        //
+        // bind button list
         Array.from(buttons).forEach((e)=>{
             let button = document.createElement("button")
             if(e === "Save"){
@@ -102,19 +101,23 @@
             }
             button.type = "button"
             button.textContent = e
-            document.getElementById("listButton").append(button)
+            $("#listButton").append(button)
         })
         //
-    }
-    //
-    saveEmployee = () =>{
+        
+    });
+
+    
+    function saveEmployee(){
             $.ajax({
                 type: "POST",
                 url: window.location.href,
                 data: JSON.stringify($("#form-data").serializeArray()),
                 contentType: "application/json",
                 success: function (response) {
-                    
+                    if(response.code === "success"){
+                        
+                    }
                 }
             });
         }
