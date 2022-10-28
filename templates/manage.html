@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=\, initial-scale=1.0">
+    <title>{{title}}</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.21.1/dist/bootstrap-table.min.js"></script>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <form id="form-data">
+                    <div class="form-group row">
+                        <label for="avatarImage" class="col-sm-2 col-form-label">Avatar</label>
+                        <div class="col-sm-10">
+                            {% if data_item["avatar"] == "" %}
+                                <img src="../static/images/avata-logo.png" id="avatarImage" width="300" height="300">
+                            {% else %}
+                                <img src="{{data_item['avatar']}}" id="avatarImage" width="300" height="300">
+                            {% endif %}
+                            <input type="hidden" name="avatar">
+                            <button type="button" class="btn btn-primary">Upload</button>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="fullName" class="col-sm-2 col-form-label">Full name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" value="{{data_item['fullName']}}" id="fullName">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="bDay" class="col-sm-2 col-form-label">Day of Birth</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" value="{{data_item['bDay']}}" id="bDay">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <legend class="col-form-label col-sm-2 pt-0">Sex</legend>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sex" id="chkMale" value="male">
+                                <label class="form-check-label" for="sex">Male</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sex" id="chkFemale" value="female">
+                                <label class="form-check-label" for="sex">Female</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="department" class="col-sm-2 col-form-label">Department</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="department" value="{{data_item['department']}}">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button type="button" class="btn btn-primary">Preview Name Card</button>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-10" id="listButton">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    //
+    var buttons = {{buttons|tojson}};
+    var dataItem = {{data_item|tojson}};
+    //
+    window.onload = function(e){
+       
+        var chkSex = document.getElementsByName("sex")
+        //
+        if (dataItem.sex !== ""){
+            let checkedElement = Array.from(chkSex).find(({value}) => value === dataItem.sex)
+            checkedElement.checked = true
+        }
+        //
+        Array.from(buttons).forEach((e)=>{
+            let button = document.createElement("button")
+            if(e === "Save"){
+                button.className = "btn btn-success"
+                button.onclick = function(){saveEmployee()};
+            }
+            if(e === "Delete"){
+                button.className = "btn btn-danger"
+                button.onclick = console.log('click')
+            }
+            if(e === "Register"){
+                button.className = "btn btn-primary"
+                button.onclick = console.log('click')
+            }
+            button.type = "button"
+            button.textContent = e
+            document.getElementById("listButton").append(button)
+        })
+        //
+    }
+    //
+    saveEmployee = () =>{
+            $.ajax({
+                type: "POST",
+                url: window.location.href,
+                data: JSON.stringify($("#form-data").serializeArray()),
+                contentType: "application/json",
+                success: function (response) {
+                    
+                }
+            });
+        }
+</script>
+</html>
