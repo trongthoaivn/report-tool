@@ -1,9 +1,12 @@
+import os
+import json
 from flask import Flask,render_template,session, request, url_for
 from flask_session import Session
 
 app = Flask(__name__,template_folder='templates')
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["UPLOAD_FOLDER"] = "static/images/upload"
 Session(app)
 
 @app.route('/home')
@@ -66,18 +69,24 @@ def manage_data():
 	
 	# POST
 	if request.method == 'POST':
-		form = request.form
-		img = request.form
+		json_data = request.form.get("data")
+		img = request.files.get("file")
 		try:
-			session["data_list"].append(form)
+			if json_data is None or img is None:
+				raise Exception("Some field not been entered!")
+			img.save(os.path.join(app.config['UPLOAD_FOLDER'], img.filename))
+			new_employee = json.loads(json_data)
+			new_employee.update({"id" : len(session["data_list"]) + 1})
+			new_employee.update({"avatar" : os.path.join(app.config['UPLOAD_FOLDER'], img.filename)})
+			session["data_list"].append(new_employee)
 			return {
 				"code" : "success",
-				"data" : url_for("home")
+				"data" : url_for("index")
 			}
 		except Exception as ex:
-			return{
+			return {
 				"code": "fail",
-				"message": ex
+				"message": str(ex)
 			}
 
 	# PUT
@@ -99,14 +108,14 @@ def manage_data():
 					"code" : "success",
 				}
 			else:
-				return{
+				return {
 				"code": "fail",
 				"message": "not exist item!"
 			}
 		except Exception as ex:
-			return{
+			return {
 				"code": "fail",
-				"message": ex
+				"message": str(ex)
 			}
 
 	# DELETE
@@ -120,14 +129,14 @@ def manage_data():
 					"code" : "success",
 				}
 			else:
-				return{
+				return {
 					"code": "fail",
 					"message": "not exist item!"
 				}
 		except Exception as ex:
-			return{
+			return {
 				"code": "fail",
-				"message": ex
+				"message": str(ex)
 			}
 
 

@@ -23,20 +23,20 @@
                             {% else %}
                                 <img src="{{data_item['avatar']}}" id="avatarImage" width="300" height="300">
                             {% endif %}
-                            <input type="hidden" name="avatar">
-                            <button type="button" class="btn btn-primary">Upload</button>
+                            <button type="button" class="btn btn-primary" onclick="selectAvatar()">Upload</button>
+                            <input class="d-none" type="file" id="avatar" name="avatar"accept="image/png, image/jpeg">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="fullName" class="col-sm-2 col-form-label">Full name</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" value="{{data_item['fullName']}}" id="fullName">
+                            <input type="text" class="form-control" value="{{data_item['fullName']}}" id="fullName" name="fullName">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="bDay" class="col-sm-2 col-form-label">Day of Birth</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" value="{{data_item['bDay']}}" id="bDay">
+                            <input type="text" class="form-control" value="{{data_item['bDay']}}" id="bDay" name="bDay">
                         </div>
                     </div>
                     <div class="row">
@@ -55,7 +55,7 @@
                     <div class="form-group row">
                         <label for="department" class="col-sm-2 col-form-label">Department</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="department" value="{{data_item['department']}}">
+                            <input type="text" class="form-control" id="department" value="{{data_item['department']}}" name="department">
                         </div>
                     </div>
                     <div class="form-group row">
@@ -79,7 +79,7 @@
 
     $(document).ready(function () {
         // bind sex radio button
-        var chkSex = $("#sex")
+        var chkSex = $("input[name=sex]")
         if (dataItem.sex !== ""){
             let checkedElement = Array.from(chkSex).find(({value}) => value === dataItem.sex)
             checkedElement.checked = true
@@ -88,16 +88,16 @@
         Array.from(buttons).forEach((e)=>{
             let button = document.createElement("button")
             if(e === "Save"){
-                button.className = "btn btn-success"
-                button.onclick = function(){saveEmployee()};
+                $(button).addClass("btn btn-success")
+                $(button).on("click", function(){saveEmployee()})
             }
             if(e === "Delete"){
-                button.className = "btn btn-danger"
-                button.onclick = console.log('click')
+                $(button).addClass("btn btn-danger")
+                $(button).on("click", function(){saveEmployee()})
             }
             if(e === "Register"){
-                button.className = "btn btn-primary"
-                button.onclick = console.log('click')
+                $(button).addClass("btn btn-primary")
+                $(button).on("click", function(){registerEmployee()})
             }
             button.type = "button"
             button.textContent = e
@@ -108,7 +108,22 @@
     });
 
     
+    function selectAvatar(){
+        let inputFile = $("input[name=avatar]")
+        inputFile.on("change", function(){
+            if(this.files && this.files[0]){
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#avatarImage').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        })
+        inputFile.click()
+    }
+    
     function saveEmployee(){
+            formData = 
             $.ajax({
                 type: "POST",
                 url: window.location.href,
@@ -123,14 +138,24 @@
         }
     
     function registerEmployee(){
+        let formData = new FormData(document.getElementById("form-data"))
+        let Obj = Object.fromEntries(formData.entries());
+        let form = new FormData()
+        form.append("file", Obj.avatar);
+        form.append("data", JSON.stringify(Obj));
         $.ajax({
                 type: "POST",
                 url: window.location.href,
-                data: JSON.stringify($("#form-data").serializeArray()),
-                contentType: "application/json",
+                data: form,
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     if(response.code === "success"){
-                        
+                        if (confirm("Register Success! \n Back to home? "))
+                            window.location.href = response.data
+                    }
+                    else{
+                        alert(response.message)
                     }
                 }
             });

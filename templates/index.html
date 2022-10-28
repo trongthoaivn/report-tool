@@ -13,12 +13,13 @@
 <body>
     <div class="container">
         <div class="row">
+          
           <div class="col-6" id="table-container"> 
             <table id="data-table">
                 <thead>
                     <tr>
                       <th data-field="id">ID</th>
-                      <th data-field="avatar">Avatar</th>
+                      <th data-field="avatar" data-formatter="imageFormatter">Avatar</th>
                       <th data-field="fullName">Full Name</th>
                       <th data-field="bDay">B-Day</th>
                       <th data-field="sex">Sex</th>
@@ -33,9 +34,14 @@
 </body>
 <script>
     var dataList = {{data_list|tojson}}
+
     $(document).ready(function () {
         var table = $('#data-table')
         table.bootstrapTable({data: dataList})
     });
+
+    function imageFormatter(value, row) {
+      return '<img src="'+value+'" style="max-width: 200px;" />';
+    }
 </script>
 </html>
