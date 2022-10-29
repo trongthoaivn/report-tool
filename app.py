@@ -1,8 +1,8 @@
-from copy import deepcopy
 import os
 import json
 from flask import Flask,render_template,session, request, url_for
 from flask_session import Session
+from helper.helper import find_item_by_key_value, delete_item
 
 app = Flask(__name__,template_folder='templates')
 app.config["SESSION_PERMANENT"] = False
@@ -46,17 +46,15 @@ def manage_data():
 		if "id" in params:
 			data = session.get("data_list")
 			id = int(params["id"])
-			filter_data = list(filter(lambda i: i["id"] == id, data )) 
-			if len(list(filter_data)) > 0: 
-				employee_data = filter_data[0]
-				item["id"] = employee_data["id"]
-				item["avatar"] = employee_data["avatar"]
-				item["fullName"] = employee_data["fullName"]
-				item["bDay"] = employee_data["bDay"]
-				item["sex"] = employee_data["sex"]
-				item["department"] = employee_data["department"]
-				item["nameCard"] = employee_data.get("nameCard")
-				title = "Edit Employee"	
+			employee_data = find_item_by_key_value(data,"id", id)
+			item["id"] = employee_data["id"]
+			item["avatar"] = employee_data["avatar"]
+			item["fullName"] = employee_data["fullName"]
+			item["bDay"] = employee_data["bDay"]
+			item["sex"] = employee_data["sex"]
+			item["department"] = employee_data["department"]
+			item["nameCard"] = employee_data.get("nameCard")
+			title = "Edit Employee"	
 			buttons = ["Save","Delete"] 
 		return render_template("manage.html", data_item = item , title = title, buttons = buttons)
 	
@@ -117,15 +115,25 @@ def manage_data():
 		try:
 			if "id" in params:
 				id = int(params["id"])
-				session["data_list"].pop(id)
-				return {
-					"code" : "success",
-				}
+				data = session["data_list"]
+				employee = find_item_by_key_value(data,"id", id)
+				if employee is None :
+					return {
+						"code": "fail",
+						"message": "not exist item!"
+					}
+				if delete_item(data, employee, "data_list"):
+					return {
+						"code" : "success",
+						"data" : url_for("index")
+					}
+				else:
+					raise Exception("Delete fail")
 			else:
 				return {
-					"code": "fail",
-					"message": "not exist item!"
-				}
+						"code": "fail",
+						"message": "missing params"
+					}
 		except Exception as ex:
 			return {
 				"code": "fail",
