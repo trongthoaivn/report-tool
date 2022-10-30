@@ -1,8 +1,9 @@
 import os
 import json
+import base64
 from flask import Flask,render_template,session, request, url_for
 from flask_session import Session
-from helper.helper import find_item_by_key_value, delete_item, convert_to_pdf
+from helper.helper import create_file_name, find_item_by_key_value, delete_item, create_pdf_file
 
 app = Flask(__name__,template_folder='templates')
 app.config["SESSION_PERMANENT"] = False
@@ -69,12 +70,17 @@ def manage_data():
 			new_employee = json.loads(json_data)
 			new_employee.update({"id" : len(session["data_list"]) + 1})
 			new_employee.update({"avatar" : os.path.join(app.config['UPLOAD_FOLDER'], img.filename)})
+			file =  create_pdf_file(new_employee,template_path="name-card/name-card.xml",remove_file=1)
+			if file["code"] != "success":
+				raise Exception("create pdf fail")
+			new_employee.update({"nameCard" : file["data"]["file_path"]})
 			session["data_list"].append(new_employee)
 			return {
 				"code" : "success",
 				"data" : url_for("index")
 			}
 		except Exception as ex:
+			print(ex)
 			return {
 				"code": "fail",
 				"message": str(ex)
@@ -104,6 +110,7 @@ def manage_data():
 				"message": "not exist item!"
 			}
 		except Exception as ex:
+			print(ex)
 			return {
 				"code": "fail",
 				"message": str(ex)
@@ -118,6 +125,7 @@ def manage_data():
 				data = session["data_list"]
 				employee = find_item_by_key_value(data,"id", id)
 				img_path = employee["avatar"]
+				pdf_path = employee["nameCard"]
 				if employee is None :
 					return {
 						"code": "fail",
@@ -125,6 +133,7 @@ def manage_data():
 					}
 				if delete_item(data, employee, "data_list"):
 					os.remove(img_path)
+					os.remove(pdf_path)
 					return {
 						"code" : "success",
 						"data" : url_for("index")
@@ -132,16 +141,51 @@ def manage_data():
 				else:
 					raise Exception("Delete fail")
 			else:
-				return {
-						"code": "fail",
-						"message": "missing params"
-					}
+				raise Exception("missing params")
 		except Exception as ex:
+			print(ex)
 			return {
 				"code": "fail",
 				"message": str(ex)
 			}
 
+
+@app.route('/preview-name-card', methods=["POST"])
+def preview_name_card():
+	params = request.json
+	try:
+		if "id" in params:
+			id = int(params["id"])
+			data = session["data_list"]
+			employee = find_item_by_key_value(data,"id", id)
+			if employee["nameCard"]	== "":
+				file = create_pdf_file(employee,template_path="name-card/name-card.xml")
+				if file["code"] == "success":
+					return{
+						"code" : "success",
+						"data" : file["data"]["base64_str"].decode("utf-8") 
+					}
+				else: 
+					raise Exception("create pdf fail")
+			else:
+				if os.path.exists(employee["nameCard"]):
+					file_pdf = open(employee["nameCard"], "rb")
+					encoded_string = base64.b64encode(file_pdf.read())
+					file_pdf.close()
+					return{
+						"code" : "success",
+						"data" : encoded_string.decode("utf-8") 
+					}
+				else:
+					raise Exception("not exist pdf file!")
+		else:
+			raise Exception("missing params")
+	except Exception as ex:
+		print(ex)
+		return {
+			"code": "fail",
+			"message": str(ex)
+		}
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0",port=5000,debug=True)

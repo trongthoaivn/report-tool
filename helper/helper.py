@@ -1,6 +1,9 @@
 import subprocess
 import sys
-from flask import Flask,render_template,session
+import time
+import os
+import base64
+from flask import Flask, render_template, session
 from flask_session import Session
 
 def  find_item_by_key_value(data:dict ,key:str, value):
@@ -64,3 +67,63 @@ def convert_to_pdf(input_file_path:str , output_folder:str):
         command = "libreoffice --convert-to pdf "+ input_file_path +" --outdir " + output_folder
         result = subprocess.run(command, shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         print(result)
+
+
+def create_file_name():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
+    file_name = str(time.strftime("%Y%m%d-%H%M%S")) + ".xml"
+    return file_name
+
+def create_pdf_file(data:dict, config:dict = None , template_path:str = "", remove_file:int = 0):
+    """_summary_
+
+    Args:
+        data (dict): _description_
+        config (dict): _description_
+        template_path (str): _description_
+
+    Raises:
+        Exception: _description_
+        Exception: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    try: 
+        out_put_path = "pdf-output/"+ create_file_name()
+        if not os.path.exists("templates/"+template_path):
+            raise Exception("not exist template!")
+        xml_str = render_template(template_path, data = data)
+        file_xml = open(out_put_path, "w",encoding="utf-8")
+        file_xml.write(xml_str)
+        file_xml.close()
+        if not os.path.exists(out_put_path):
+            raise Exception("convert template fail")
+        convert_to_pdf(out_put_path,"pdf-output")
+        pdf_file_path = str(out_put_path).replace("xml","pdf")
+        file_pdf = open(pdf_file_path, "rb")
+        encoded_string = base64.b64encode(file_pdf.read())
+        file_pdf.close()
+        if remove_file == 0:
+            os.remove(out_put_path)
+            os.remove(pdf_file_path)
+        if remove_file == 1:
+            os.remove(out_put_path)
+        return{
+            "code" : "success",
+            "data" : {
+                "file_path" : pdf_file_path,
+                "base64_str" : encoded_string
+            }
+        }
+  
+    except Exception as ex:
+        print(ex)
+        return {
+            "code" : "fail",
+            "message" : str(ex)
+        } 

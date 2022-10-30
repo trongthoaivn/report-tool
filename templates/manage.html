@@ -60,7 +60,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-10">
-                            <button type="button" class="btn btn-primary">Preview Name Card</button>
+                            <button type="button" class="btn btn-primary" onclick="previewNameCard()">Preview Name Card</button>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -123,19 +123,28 @@
     }
     
     function saveEmployee(){
-            formData = 
-            $.ajax({
-                type: "POST",
-                url: window.location.href,
-                data: JSON.stringify($("#form-data").serializeArray()),
-                contentType: "application/json",
-                success: function (response) {
-                    if(response.code === "success"){
-                        
-                    }
+        let formData = new FormData(document.getElementById("form-data"))
+        let Obj = Object.fromEntries(formData.entries());
+        let form = new FormData()
+        form.append("file", Obj.avatar);
+        form.append("data", JSON.stringify(Obj));
+        $.ajax({
+            type: "POST",
+            url: window.location.href,
+            data: form,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if(response.code === "success"){
+                    if (confirm("Register Success! \n Back to home ? "))
+                        window.location.href = response.data
                 }
-            });
-        }
+                else{
+                    alert(response.message)
+                }
+            }
+        });
+    }
     
     function registerEmployee(){
         let formData = new FormData(document.getElementById("form-data"))
@@ -177,5 +186,40 @@
                 }
             });
         }
+    
+    function previewNameCard(){
+        let searchParams = new URLSearchParams(window.location.search)
+        let id =  searchParams.get('id')
+        $.ajax({
+                type: "POST",
+                url: "/preview-name-card",
+                data: JSON.stringify({"id":id}),
+                contentType: "application/json",
+                success: function (response) {
+                    if(response.code === "success"){
+                        if(response.data){
+                           url = convertToBlobURL(response.data)
+                           window.open(url, '_blank')
+                        }
+                    }
+                    else{
+                        alert(response.message)
+                    }
+                }
+            });
+    }
+
+    function convertToBlobURL(base64Str){
+        var binary = atob(base64Str.replace(/\s/g, ''));
+        var len = binary.length;
+        var buffer = new ArrayBuffer(len);
+        var view = new Uint8Array(buffer);
+        for (var i = 0; i < len; i++) {
+            view[i] = binary.charCodeAt(i);
+        }            
+        var blob = new Blob( [view], { type: "application/pdf" });
+        var url = URL.createObjectURL(blob);
+        return url
+    }
 </script>
 </html>
