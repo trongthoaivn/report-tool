@@ -2,7 +2,7 @@ import os
 import json
 from flask import Flask,render_template,session, request, url_for
 from flask_session import Session
-from helper.helper import find_item_by_key_value, delete_item
+from helper.helper import find_item_by_key_value, delete_item, convert_to_pdf
 
 app = Flask(__name__,template_folder='templates')
 app.config["SESSION_PERMANENT"] = False
@@ -117,12 +117,14 @@ def manage_data():
 				id = int(params["id"])
 				data = session["data_list"]
 				employee = find_item_by_key_value(data,"id", id)
+				img_path = employee["avatar"]
 				if employee is None :
 					return {
 						"code": "fail",
 						"message": "not exist item!"
 					}
 				if delete_item(data, employee, "data_list"):
+					os.remove(img_path)
 					return {
 						"code" : "success",
 						"data" : url_for("index")
