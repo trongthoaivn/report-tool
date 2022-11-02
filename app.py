@@ -70,7 +70,7 @@ def manage_data():
 			new_employee = json.loads(json_data)
 			new_employee.update({"id" : len(session["data_list"]) + 1})
 			new_employee.update({"avatar" : os.path.join(app.config['UPLOAD_FOLDER'], img.filename)})
-			file =  create_pdf_file(new_employee,template_path="name-card/name-card.xml",remove_file=1)
+			file =  create_pdf_file(new_employee,template_path="name-card/name-card.xml",remove_file=2)
 			if file["code"] != "success":
 				raise Exception("create pdf fail")
 			new_employee.update({"nameCard" : file["data"]["file_path"]})

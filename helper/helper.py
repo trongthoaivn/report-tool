@@ -60,8 +60,8 @@ def convert_to_pdf(input_file_path:str , output_folder:str):
     """
     os_name = sys.platform
     if os_name == "win32":
-        libreoffice_app = "C:\\Program Files\\LibreOffice\\program\\soffice.exe"
-        command = libreoffice_app + " --convert-to pdf "+ input_file_path +" --outdir " + output_folder
+        libreoffice_app = 'start "" "C:\\Program Files\\LibreOffice\\program\\soffice.com"'
+        command = libreoffice_app + " --nologo --convert-to pdf "+ input_file_path +" --outdir " + output_folder
         result = subprocess.run(command, shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         print(result)
     else:
@@ -95,7 +95,7 @@ def create_pdf_file(data:dict, config:dict = None , template_path:str = "", remo
         _type_: _description_
     """
     try: 
-        out_put_path = "pdf-output/"+ create_file_name()
+        out_put_path = os.path.join("pdf-output/"+ create_file_name()) 
         if not os.path.exists("templates/"+template_path):
             raise Exception("not exist template!")
         xml_str = render_template(template_path, data = data)
@@ -132,8 +132,35 @@ def create_pdf_file(data:dict, config:dict = None , template_path:str = "", remo
 
 
 def format_style(xml_str:str, config:dict={}):
+    config = {
+        "rules":{
+            "color_red": True
+        },
+        "setting":{
+            "color_red": {
+                "text-properties":{
+                    "fo:color": "#c9211e"
+                }
+            }
+        }
+
+    }
+    bs_obj = bs(xml_str, "xml")
     namespace =  get_namespace(xml_str)
-    return xml_str
+    for key, value in config["rules"].items():
+        p_tags = list(filter(lambda x: str(x.string).find(key) != -1
+                                    and value, bs_obj.find_all("p"))) 
+        if len(p_tags) > 0:
+            for index, p in enumerate(p_tags):
+                style_name = p.parent.attrs.get("table:style-name")
+                style_tag = bs_obj.find_all("style:style",{"style:name": style_name})[0]
+                setting = config.get("setting")
+                if setting.get(key) is not None:
+                    for format_key, format_value in setting.get(key).items():
+                        format = style_tag.find_all(format_key)[0]
+                        for setting_key, setting_value in format_value.items():
+                            format.attrs[setting_key] = setting_value
+    return str(bs_obj)
 
 
 def get_namespace(xml_str:str):

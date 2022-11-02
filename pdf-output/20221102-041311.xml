@@ -729,13 +729,13 @@
      <table:table-cell table:style-name="ce3"/>
      <table:table-cell table:style-name="ce8"/>
      <table:table-cell table:style-name="ce11" office:value-type="string" calcext:value-type="string" table:number-columns-spanned="4" table:number-rows-spanned="3">
-      <text:p>{{data.fullName}}color_red</text:p>
+      <text:p>trongthoai001color_red</text:p>
      </table:table-cell>
      <table:covered-table-cell table:number-columns-repeated="3" table:style-name="ce36"/>
      <table:table-cell table:style-name="ce10"/>
      <table:table-cell table:style-name="ce15"/>
      <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string" table:number-columns-spanned="2" table:number-rows-spanned="11">
-      <text:p>{{data.avatar}}</text:p>
+      <text:p>static/images/upload\network.png</text:p>
      </table:table-cell>
      <table:covered-table-cell table:style-name="ce20"/>
      <table:table-cell table:style-name="ce15"/>
@@ -821,7 +821,7 @@
      <table:table-cell table:style-name="ce8"/>
      <table:table-cell table:style-name="ce10"/>
      <table:table-cell table:style-name="ce10" office:value-type="string" calcext:value-type="string">
-      <text:p>{{data.bDay}}</text:p>
+      <text:p>sadf</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce10" table:number-columns-repeated="3"/>
      <table:table-cell table:style-name="ce15"/>
@@ -871,7 +871,7 @@
      <table:table-cell table:style-name="ce8"/>
      <table:table-cell table:style-name="ce10"/>
      <table:table-cell table:style-name="ce10" office:value-type="string" calcext:value-type="string">
-      <text:p>{{data.sex}}</text:p>
+      <text:p>male</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce10" table:number-columns-repeated="3"/>
      <table:table-cell table:style-name="ce15"/>
@@ -917,7 +917,7 @@
       </draw:frame>
      </table:table-cell>
      <table:table-cell table:style-name="ce10" office:value-type="string" calcext:value-type="string">
-      <text:p>{{data.department}}</text:p>
+      <text:p>PRODUCT</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce10" table:number-columns-repeated="3"/>
      <table:table-cell table:style-name="ce15"/>
